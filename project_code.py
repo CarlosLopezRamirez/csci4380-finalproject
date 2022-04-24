@@ -9,7 +9,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
-
+from sklearn import tree
 
 data = pd.read_csv("~/Desktop/CSCI 4380/Final Project/star_classification.csv")
 #split into X and y
@@ -93,7 +93,6 @@ for var in variable_list:
     eda_desc(var)
     
 
-
 #MODELING
 
 #NULL MODEL (baseline)
@@ -151,3 +150,12 @@ test_y_svm_pred = clf.predict(data_test[features])
 
 print(metrics.confusion_matrix(data_test["class"], test_y_svm_pred))
 print(metrics.classification_report(data_test["class"], test_y_svm_pred))
+
+# DECISION TREE
+
+def decision_tree():
+    decision_tree_model = tree.DecisionTreeClassifier()
+    decision_tree_model = decision_tree_model.fit(data_train[features], data_train["class"])
+    tree.plot_tree(decision_tree_model)
+
+decision_tree()
