@@ -13,7 +13,7 @@ from sklearn import tree
 from sklearn.model_selection import GridSearchCV
 
 
-data = pd.read_csv("~/Desktop/CSCI 4380/Final Project/star_classification.csv")
+data = pd.read_csv("star_classification.csv")
 #obj_ID: drop ID: identifier
 #rerun_ID: all observations have same value :: provides no information
 data = data.drop(['obj_ID', 'rerun_ID'], axis=1)
@@ -73,9 +73,9 @@ data_train_X = data_train.drop(['class'], axis=1)
 features = data_train_X.columns
 
 #output EDA
-for var in features:
-    eda_hist(var)
-    eda_desc(var)
+#for var in features:
+    #eda_hist(var)
+    #eda_desc(var)
     
 #outlier detection
 #3,4,7 producing -9999.0 minimum
@@ -147,12 +147,18 @@ test_y_svm_pred = clf.predict(data_test[features])
 print(metrics.confusion_matrix(data_test["class"], test_y_svm_pred))
 print(metrics.classification_report(data_test["class"], test_y_svm_pred)) 
 
-
 # DECISION TREE
 
-def decision_tree():
-    decision_tree_model = tree.DecisionTreeClassifier()
-    decision_tree_model = decision_tree_model.fit(data_train[features], data_train["class"])
-    tree.plot_tree(decision_tree_model)
+clf = tree.DecisionTreeClassifier(max_depth=4, max_leaf_nodes=16, min_samples_leaf=4, min_samples_split=4)
+clf.fit(data_train[features], data_train["class"])
 
-decision_tree()
+#generate predictions
+test_y_tree_pred = clf.predict(data_test[features])
+
+print("Confusion Matrix: Decision Tree")
+print(metrics.confusion_matrix(data_test["class"], test_y_tree_pred))
+print(metrics.classification_report(data_test["class"], test_y_tree_pred))
+
+fig, axes = plt.subplots(figsize = (33, 33))
+tree.plot_tree(clf, ax=axes, fontsize=10, filled=True)
+fig.savefig('imagename.png')
