@@ -140,6 +140,7 @@ print(metrics.classification_report(data_test["class"], test_y_knn_pred))
 
 clf = make_pipeline(StandardScaler(), GridSearchCV(estimator=SVC(), param_grid={'C': [1, 10], 'kernel': ('linear', 'rbf'), 'gamma': ('scale', 'auto')})) #gridsearch SVM
 clf.fit(data_train[features], data_train["class"])
+clf.get_params() #C: 1.0, gamma: 'scale', kernel: 'rbf'
 
 #generate predictions
 test_y_svm_pred = clf.predict(data_test[features])
