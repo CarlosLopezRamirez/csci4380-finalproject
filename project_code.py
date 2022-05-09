@@ -12,8 +12,11 @@ from sklearn.preprocessing import StandardScaler
 from sklearn import tree
 from sklearn.model_selection import GridSearchCV
 
+
 data = pd.read_csv("~/Desktop/CSCI 4380/Final Project/star_classification.csv")
-#classification variables
+#obj_ID: drop ID: identifier
+#rerun_ID: all observations have same value :: provides no information
+data = data.drop(['obj_ID', 'rerun_ID'], axis=1)
 variable_list = data.columns
 #split into train and test
 data_train, data_test = train_test_split(data, test_size=0.2, random_state=0)
@@ -63,21 +66,6 @@ def desc_metrics(data, var):
     
     return [var_min, var_max, var_mean, var_sd]
 
-    
-#outlier detection
-#3,4,7 producing -9999.0 minimum
-data_train = data_train[data_train.u != -9999.0]
-data_train = data_train[data_train.g != -9999.0]
-data_train = data_train[data_train.z != -9999.0]
-
-#obj_ID: drop ID: identifier
-#rerun_ID: all observations have same value :: provides no information
-data_train = data_train.drop(['obj_ID', 'rerun_ID'], axis=1)
-
-#correlation matrix
-sn.heatmap(data_train.corr(), annot=True)
-plt.show()
-
 #class: drop response for X
 data_train_X = data_train.drop(['class'], axis=1)
 
@@ -85,9 +73,20 @@ data_train_X = data_train.drop(['class'], axis=1)
 features = data_train_X.columns
 
 #output EDA
-for var in variable_list:
+for var in features:
     eda_hist(var)
     eda_desc(var)
+    
+#outlier detection
+#3,4,7 producing -9999.0 minimum
+data_train = data_train[data_train.u != -9999.0]
+data_train = data_train[data_train.g != -9999.0]
+data_train = data_train[data_train.z != -9999.0]
+
+#correlation matrix
+sn.heatmap(data_train.corr(), annot=True)
+plt.show()
+
     
 
 #MODELING
