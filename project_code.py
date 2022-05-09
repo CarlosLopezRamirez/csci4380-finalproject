@@ -11,6 +11,8 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn import tree
 from sklearn.model_selection import GridSearchCV
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import BaggingClassifier
 
 
 data = pd.read_csv("star_classification.csv")
@@ -73,9 +75,9 @@ data_train_X = data_train.drop(['class'], axis=1)
 features = data_train_X.columns
 
 #output EDA
-#for var in features:
-    #eda_hist(var)
-    #eda_desc(var)
+for var in features:
+    eda_hist(var)
+    eda_desc(var)
     
 #outlier detection
 #3,4,7 producing -9999.0 minimum
@@ -87,7 +89,6 @@ data_train = data_train[data_train.z != -9999.0]
 sn.heatmap(data_train.corr(), annot=True)
 plt.show()
 
-    
 
 #MODELING
 
@@ -163,3 +164,25 @@ print(metrics.classification_report(data_test["class"], test_y_tree_pred))
 fig, axes = plt.subplots(figsize = (33, 33))
 tree.plot_tree(clf, ax=axes, fontsize=10, filled=True)
 fig.savefig('imagename.png')
+
+# RANDOM FOREST
+forest_param_grid = {
+    'max_depth': [4, 8],
+    'max_leaf_nodes': [4, 8, 16],
+    'min_samples_split': [1, 2, 4]
+}
+
+clf = make_pipeline(StandardScaler(), GridSearchCV(RandomForestClassifier(), forest_param_grid))
+clf.fit(data_train[features], data_train["class"])
+
+print(clf['gridsearchcv'].best_params_)
+
+# based on best params
+clf = BaggingClassifier(RandomForestClassifier(max_depth=8, max_leaf_nodes=16, min_samples_split=2))
+clf.fit(data_train[features], data_train["class"])
+
+test_y_bagging_pre = clf.predict(data_test[features])
+
+print("Confusion Matrix: Random Forest + Bagging")
+print(metrics.confusion_matrix(data_test["class"], test_y_bagging_pre))
+print(metrics.classification_report(data_test["class"], test_y_bagging_pre))
