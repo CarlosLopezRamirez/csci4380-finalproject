@@ -10,15 +10,12 @@ from sklearn.svm import SVC
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn import tree
+from sklearn.model_selection import GridSearchCV
 
 data = pd.read_csv("~/Desktop/CSCI 4380/Final Project/star_classification.csv")
-#split into X and y
-#data_X = data.drop(['obj_ID', 'class'], axis=1)
-#data_y = data["class"]
 #classification variables
 variable_list = data.columns
 #split into train and test
-#X_train, X_test, y_train, y_test = train_test_split(data_X, data_y, test_size=0.2, random_state=0)
 data_train, data_test = train_test_split(data, test_size=0.2, random_state=0)
 
 
@@ -100,7 +97,7 @@ for var in variable_list:
 #classify majority class: GALAXY
     
 #predict galaxy for all observations
-test_y_null_pred = ["GALAXY"] * len(data_test_X)
+test_y_null_pred = ["GALAXY"] * len(data_test)
 
 #assess null performance: compare actual and predicted class
 print("Confusion Matrix: Null (train)")
@@ -142,14 +139,15 @@ print(metrics.classification_report(data_test["class"], test_y_knn_pred))
 
 #SUPPORT VECTOR MACHINE (SVM)
 
-clf = make_pipeline(StandardScaler(), SVC(gamma='auto'))
+clf = make_pipeline(StandardScaler(), GridSearchCV(estimator=SVC(), param_grid={'C': [1, 10], 'kernel': ('linear', 'rbf'), 'gamma': ('scale', 'auto')})) #gridsearch SVM
 clf.fit(data_train[features], data_train["class"])
 
 #generate predictions
 test_y_svm_pred = clf.predict(data_test[features])
 
 print(metrics.confusion_matrix(data_test["class"], test_y_svm_pred))
-print(metrics.classification_report(data_test["class"], test_y_svm_pred))
+print(metrics.classification_report(data_test["class"], test_y_svm_pred)) 
+
 
 # DECISION TREE
 
